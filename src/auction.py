@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 from urllib.parse import urlencode, quote
 
@@ -13,6 +15,21 @@ class AuctionRegisteredItem:
     item_type_detail: str
     count: int
     price: int
+
+    @staticmethod
+    def from_api(row: dict) -> AuctionRegisteredItem:
+        try:
+            return AuctionRegisteredItem(
+                auction_no=row["auctionNo"],
+                item_id=row["itemId"],
+                item_name=row["itemName"],
+                item_type_detail=row["itemTypeDetail"],
+                count=row["count"],
+                price=row["unitPrice"],
+            )
+        except KeyError as e:
+            print(f"경매장 등록 아이템 파싱 실패: KeyError: {e}")
+            raise
 
 
 def search_by_item_name(item_name: str, *, limit: int = 100) -> list[AuctionRegisteredItem]:
@@ -31,15 +48,6 @@ def search_by_item_name(item_name: str, *, limit: int = 100) -> list[AuctionRegi
         return []
 
     rsp = response.json()
-    registered_items = list()
-    for row in rsp.get("rows", []):
-        registered_items.append(AuctionRegisteredItem(
-            auction_no=row["auctionNo"],
-            item_id=row["itemId"],
-            item_name=row["itemName"],
-            item_type_detail=row["itemTypeDetail"],
-            count=row["count"],
-            price=row["unitPrice"],
-        ))
+    registered_items = [AuctionRegisteredItem.from_api(row) for row in rsp.get("rows", [])]
 
     return registered_items
