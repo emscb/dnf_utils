@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-import dataclasses
+from dataclasses import dataclass
 from urllib.parse import urlencode, quote
 
 import requests
+
 from env_var import API_KEY
 
 
-@dataclasses.dataclass
+@dataclass
 class AuctionRegisteredItem:
     auction_no: int
     item_id: str
