@@ -70,3 +70,35 @@ def get_character_list(name: str, server_id: str | None = "all") -> list[Charact
 
     rsp = response.json()
     return Character.from_apis(rsp.get("rows", []))
+
+
+def get_set_info(character: Character) -> (str, str, int):
+    response = requests.get(f"https://api.neople.co.kr/df"
+                            f"/servers/{character.server_id}"
+                            f"/characters/{character.character_id}/equip/equipment"
+                            f"?apikey={API_KEY}")
+    if response.status_code != 200:
+        print("검색 실패")
+        print(response.text)
+        response.raise_for_status()
+
+    rsp = response.json()
+    if (set_item_info := rsp.get("setItemInfo", [])) is None or len(set_item_info) == 0:
+        raise Exception("세트 아이템 정보 없음")
+
+    set_id = set_item_info[0]["setItemId"]
+    set_name = set_item_info[0]["setItemName"]
+    set_rarity_name = set_item_info[0]["setItemRarityName"]
+
+    whole_set_point = 0
+    for equipment in rsp.get("equipment", []):
+        for tune in equipment.get("tune", []):
+            if (set_point := tune.get("setPoint")) is not None and isinstance(set_point, int):
+                whole_set_point += set_point
+        upgrade_info = equipment.get("upgradeInfo", {})
+        if upgrade_info.get("setItemId") == set_id and (
+        set_point := upgrade_info.get("setPoint")) is not None and isinstance(set_point, int):
+            whole_set_point += set_point
+
+    return set_name, set_rarity_name, whole_set_point
+
