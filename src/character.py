@@ -97,8 +97,7 @@ def get_set_info(character: Character) -> (str, str, int):
                 whole_set_point += set_point
         upgrade_info = equipment.get("upgradeInfo", {})
         if upgrade_info.get("setItemId") == set_id and (
-        set_point := upgrade_info.get("setPoint")) is not None and isinstance(set_point, int):
+                set_point := upgrade_info.get("setPoint")) is not None and isinstance(set_point, int):
             whole_set_point += set_point
 
     return set_name, set_rarity_name, whole_set_point
-
