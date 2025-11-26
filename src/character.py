@@ -86,9 +86,12 @@ def get_set_info(character: Character) -> (str, str, int):
     if (set_item_info := rsp.get("setItemInfo", [])) is None or len(set_item_info) == 0:
         raise Exception("세트 아이템 정보 없음")
 
-    set_id = set_item_info[0]["setItemId"]
-    set_name = set_item_info[0]["setItemName"]
-    set_rarity_name = set_item_info[0]["setItemRarityName"]
+    try:
+        set_id = set_item_info[0]["setItemId"]
+        set_name = set_item_info[0]["setItemName"]
+        set_rarity_name = set_item_info[0]["setItemRarityName"]
+    except (IndexError, KeyError):
+        raise Exception("세트 아이템 정보 없음")
 
     whole_set_point = 0
     for equipment in rsp.get("equipment", []):
